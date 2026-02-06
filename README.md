@@ -39,7 +39,6 @@ SUPABASE_KEY=your_supabase_secret_key
 EXCHANGE_RATE_API_URL=https://v6.exchangerate-api.com/v6/YOUR_EXCHANGERATE_API_KEY/latest
 ```
 
-
 ### 4. Install dependencies
 
 ```bash
@@ -147,6 +146,36 @@ pip freeze > requirements.txt
 
 **GET** `/expenses/{id}`
 
+### Update Expense
+
+**PUT** `/expenses/{id}`
+
+```json
+{
+  "amount": 75.0,
+  "category": "food",
+  "description": "dinner",
+  "date": "2026-02-04T12:00:00",
+  "payment_method": "card"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Expense updated",
+  "data": {
+    "id": 1,
+    "amount": 75.0,
+    "category": "food",
+    "description": "dinner",
+    "date": "2026-02-04T12:00:00",
+    "payment_method": "card"
+  }
+}
+```
+
 ### Convert Expenses to Another Currency
 
 **GET** `/expenses/convert/{target_currency}`
@@ -174,6 +203,20 @@ Converts all user expenses from INR to a target currency using real-time exchang
   "exchange_rate": 0.0111,
   "target_currency": "USD",
   "base_currency": "INR"
+}
+```
+
+### Delete Expense
+
+**DELETE** `/expenses/{id}`
+
+Deletes an expense by ID.
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Expense deleted"
 }
 ```
 
