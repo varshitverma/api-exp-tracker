@@ -6,25 +6,47 @@
 
 ```bash
 git clone https://github.com/varshitverma/api-exp-tracker.git
-cd backend / folder_name
+cd backend
 ```
 
-### 2. Create a `.env` file
+### 2. Generate & Collect API Keys (IMPORTANT - Do This First!)
 
-Copy and fill in your Supabase credentials:
+Before proceeding with setup, you need to generate two API keys:
+
+#### A. Supabase API Keys
+
+1. Go to [Supabase](https://supabase.com)
+2. Create a new project or use existing one
+3. Go to **Settings** → **API**
+4. Copy these values:
+   - **Project URL** - This is your `SUPABASE_URL`
+   - **Service Role Secret** - This is your `SUPABASE_KEY`
+
+#### B. ExchangeRate API Key
+
+1. Go to [ExchangeRate-API](https://www.exchangerate-api.com)
+2. Sign up for a free account
+3. Copy your **API Key**
+4. This will be part of your `EXCHANGE_RATE_API_URL`
+
+### 3. Create a `.env` file
+
+Create a `.env` file in the backend directory and add your API keys:
 
 ```env
-SUPABASE_URL=your_supabase_url // This is Project URL in Supabase project
-SUPABASE_SECRET_KEY=your_supabase_secret_key // This is Secret  Key
+SUPABASE_URL=your_supabase_project_url
+SUPABASE_KEY=your_supabase_secret_key
+EXCHANGE_RATE_API_URL=https://v6.exchangerate-api.com/v6/YOUR_EXCHANGERATE_API_KEY/latest
 ```
 
-### 3. Install dependencies
+
+### 4. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Supabase Setup & Database Migrations
+### 5. Supabase Setup & Database Migrations
 
 #### Login to Supabase
 
@@ -68,7 +90,7 @@ npx supabase db reset --linked
 # Then run all commands above again to set up the database
 ```
 
-### 5. Start the Server
+### 6. Start the Server
 
 ```bash
 python -m uvicorn main:app --reload
@@ -76,7 +98,7 @@ python -m uvicorn main:app --reload
 
 Server runs on: `http://127.0.0.1:8000`
 
-### 6. Access API Documentation
+### 7. Access API Documentation
 
 Once the server is running, you can view interactive API documentation:
 
@@ -91,7 +113,7 @@ Once the server is running, you can view interactive API documentation:
   - Raw OpenAPI specification
   - For programmatic use & third-party tools
 
-### 7. Update Requirements
+### 8. Update Requirements
 
 After installing new packages, update requirements file:
 
@@ -165,12 +187,7 @@ Converts all user expenses from INR to a target currency using real-time exchang
 
 **Provider:** [ExchangeRate-API](https://www.exchangerate-api.com)
 
-**Configuration:**
-
-- Add to `.env` file. PLEASE GENERATE YOUR OWN API KEY FROM THE LINK ABOVE AND UPDATE THE .env FILE:
-  ```env
-  EXCHANGE_RATE_API_URL=https://v6.exchangerate-api.com/v6/YOUR_API_KEY/latest
-  ```
+**Setup:** API key is configured in `.env` file (see Step 3 above)
 
 **Feature Description:**
 When a user selects a country/currency from the UI:
