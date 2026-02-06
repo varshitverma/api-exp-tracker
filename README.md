@@ -277,3 +277,182 @@ backend/
 ├── requirements.txt
 └── .env
 ```
+
+---
+
+## 📦 Deployment Guide (EC2 + Nginx + FastAPI)
+
+This guide covers deploying your Expense Tracker backend to AWS EC2 with Nginx reverse proxy.
+
+### 🚀 1️⃣ EC2 Server Setup (Ubuntu)
+
+#### Step 1: Launch EC2 Instance
+
+- **OS:** Ubuntu 22.04
+- **Instance type:** t3.small (recommended minimum 2GB RAM)
+
+**Open Security Group Ports:**
+- 22 (SSH)
+- 80 (HTTP)
+- 443 (HTTPS)
+
+#### Step 2: Connect via SSH
+
+```bash
+ssh -i your-key.pem ubuntu@YOUR_PUBLIC_IP
+```
+
+#### Step 3: Update Server
+
+```bash
+sudo apt update && sudo apt upgrade -y
+```
+
+### 🐍 2️⃣ Backend Deployment (FastAPI + Gunicorn)
+
+#### Step 1: Clone Repository
+
+```bash
+cd ~
+git clone https://github.com/your-repo/backend.git
+cd backend
+```
+
+#### Step 2: Install Python & Dependencies
+
+```bash
+# Install Python and venv
+sudo apt install python3 python3-venv python3-pip -y
+
+# Create virtual environment
+python3 -m venv env
+source env/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+pip install gunicorn
+
+# Deactivate when done
+deactivate
+```
+
+#### Step 3: Create `.env` File
+
+```bash
+nano .env
+```
+
+Add your API keys:
+```env
+SUPABASE_URL=your_supabase_project_url
+SUPABASE_KEY=your_supabase_secret_key
+EXCHANGE_RATE_API_URL=https://v6.exchangerate-api.com/v6/YOUR_API_KEY/latest
+```
+
+Save with `Ctrl+X` → `Y` → `Enter`
+
+#### Step 4: Create systemd Service
+
+```bash
+sudo nano /etc/systemd/system/fastapi.service
+```
+
+Paste the following:
+
+```ini
+[Unit]
+Description=FastAPI App
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/backend
+ExecStart=/home/ubuntu/backend/env/bin/gunicorn \
+          -k uvicorn.workers.UvicornWorker \
+          main:app \
+          --bind 127.0.0.1:8000 \
+          --workers 2
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Save with `Ctrl+X` → `Y` → `Enter`
+
+#### Step 5: Enable & Start Backend Service
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable fastapi
+sudo systemctl start fastapi
+
+# Check status
+sudo systemctl status fastapi
+```
+
+### 🌐 3️⃣ Install & Configure Nginx
+
+#### Step 1: Install Nginx
+
+```bash
+sudo apt install nginx -y
+```
+
+#### Step 2: Configure Nginx
+
+```bash
+sudo nano /etc/nginx/sites-available/default
+```
+
+Replace with:
+
+```nginx
+server {
+    listen 80;
+    server_name yourdomain.com www.yourdomain.com;
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    location / {
+        root /var/www/html;
+        index index.html;
+        try_files $uri /index.html;
+    }
+}
+```
+
+#### Step 3: Test & Restart Nginx
+
+```bash
+# Test configuration
+sudo nginx -t
+
+# Restart Nginx
+sudo systemctl restart nginx
+
+# Enable on startup
+sudo systemctl enable nginx
+```
+
+### 🔒 4️⃣ SSL Certificate (HTTPS with Let's Encrypt)
+
+```bash
+# Install Certbot
+sudo apt install certbot python3-certbot-nginx -y
+
+# Generate certificate
+sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+
+# Auto-renewal enabled by default
+```
+
+### ✅ Verification
+
+- **API:** `http://yourdomain.com/api/v1/expenses`
+- **Docs:** `http://yourdomain.com/api/docs`
+- **Check logs:** `sudo journalctl -u fastapi -f`
