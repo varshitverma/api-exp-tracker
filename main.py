@@ -2,13 +2,18 @@ import os
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
 
 from app.routes.api_routes import api_router
 
 
 load_dotenv()
 
-app = FastAPI()
+app = FastAPI(
+    docs_url="/api/docs",
+    redoc_url="/api/redoc",
+    openapi_url="/api/openapi.json"
+)
 
 app.add_middleware(
         CORSMiddleware,
@@ -24,7 +29,6 @@ def root():
     return {"message": "This is Hello from root "}
 
 app.include_router(api_router, prefix="/api/v1")
-
 
 
 

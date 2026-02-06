@@ -76,7 +76,22 @@ python -m uvicorn main:app --reload
 
 Server runs on: `http://127.0.0.1:8000`
 
-### 6. Update Requirements
+### 6. Access API Documentation
+
+Once the server is running, you can view interactive API documentation:
+
+- **Swagger UI (Interactive):** [http://127.0.0.1:8000/api/docs](http://127.0.0.1:8000/api/docs)
+  - Best for testing endpoints directly
+  - Try out requests and see responses
+- **ReDoc (Beautiful Docs):** [http://127.0.0.1:8000/api/redoc](http://127.0.0.1:8000/api/redoc)
+  - Clean, organized documentation
+  - Great for reading API specifications
+
+- **OpenAPI Schema (JSON):** [http://127.0.0.1:8000/api/openapi.json](http://127.0.0.1:8000/api/openapi.json)
+  - Raw OpenAPI specification
+  - For programmatic use & third-party tools
+
+### 7. Update Requirements
 
 After installing new packages, update requirements file:
 
@@ -109,6 +124,64 @@ pip freeze > requirements.txt
 ### Get Specific Expense
 
 **GET** `/expenses/{id}`
+
+### Convert Expenses to Another Currency
+
+**GET** `/expenses/convert/{target_currency}`
+
+Converts all user expenses from INR to a target currency using real-time exchange rates.
+
+**Example Response:**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "amount": 100,
+      "original_amount": 100,
+      "original_currency": "INR",
+      "converted_amount": 1.11,
+      "target_currency": "USD",
+      "category": "food",
+      "description": "lunch"
+    }
+  ],
+  "total_in_target_currency": 111.5,
+  "exchange_rate": 0.0111,
+  "target_currency": "USD",
+  "base_currency": "INR"
+}
+```
+
+---
+
+## 3rd Party APIs
+
+### Exchange Rate API
+
+**Purpose:** Convert user expenses to different currencies when traveling.
+
+**Provider:** [ExchangeRate-API](https://www.exchangerate-api.com)
+
+**Configuration:**
+
+- Add to `.env` file. PLEASE GENERATE YOUR OWN API KEY FROM THE LINK ABOVE AND UPDATE THE .env FILE:
+  ```env
+  EXCHANGE_RATE_API_URL=https://v6.exchangerate-api.com/v6/YOUR_API_KEY/latest
+  ```
+
+**Feature Description:**
+When a user selects a country/currency from the UI:
+
+1. Backend receives the target currency code (e.g., `USD`, `EUR`, `GBP`)
+2. Backend calls the Exchange Rate API to fetch current exchange rates from INR
+3. All existing expenses are converted to the selected currency
+4. User sees individual expenses and total expenses in the selected currency
+5. This is helpful when traveling to another country to track spending in local currency
+
+**Supported Currencies:** 160+ currencies including USD, EUR, GBP, JPY, INR, AED, and more.
 
 ---
 
